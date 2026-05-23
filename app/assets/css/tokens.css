@@ -1,0 +1,67 @@
+:root {
+  /* Base */
+  --color-void: #1e1c1e;
+  --color-charcoal: #2d2a2e;
+  --color-ash: #3a373b;
+  --color-smoke: #4a474b;
+  --color-haze: #3e3b3f;
+
+  /* Text */
+  --color-cream: #fcfcfa;
+  --color-fog: #c1bec6;
+  --color-dusk: #7a7680;
+
+  /* Accents */
+  --color-blossom: #ff6188;
+  --color-sage: #a9dc76;
+  --color-saffron: #ffd866;
+  --color-periwinkle: #78dce8;
+  --color-lavender: #ab9df2;
+  --color-ember: #fc9867;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 13px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--color-void);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--color-fog);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+}
