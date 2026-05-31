@@ -44,7 +44,7 @@ jobs:
       - name: Static HTML export with Nuxt
         run: pnpm build
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v7
         with:
           path: ./dist
 
