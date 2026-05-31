@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   modules: ['@pinia/nuxt'],
   css: ['~/assets/css/tokens.css'],
   app: {
+    baseURL: '/glance-editor/',
     head: {
       link: [
         {
