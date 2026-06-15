@@ -268,6 +268,13 @@ export const useConfigStore = defineStore('config', () => {
     authUsers.value.splice(index, 1)
   }
 
+  function toggleAuthUserHashMode(index: number) {
+    const user = authUsers.value[index]
+    authUsers.value[index] = 'password-hash' in user
+      ? { username: user.username, password: '' }
+      : { username: user.username, 'password-hash': '' }
+  }
+
   function addEnvVar() {
     envVars.value.push({ name: '', value: '' })
   }
@@ -415,5 +422,6 @@ export const useConfigStore = defineStore('config', () => {
     addAuthUser,
     updateAuthUser,
     removeAuthUser,
+    toggleAuthUserHashMode,
   }
 })

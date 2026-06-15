@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Trash2, Plus, Download } from '@lucide/vue'
+import { Trash2, Plus, Download, Hash } from '@lucide/vue'
 import { useConfigStore } from '~/stores/config'
 import { downloadEnv } from '~/utils/yaml'
 
@@ -119,8 +119,16 @@ const store = useConfigStore()
             :value="user.username"
             @input="store.updateAuthUser(index, { username: ($event.target as HTMLInputElement).value })"
           />
+          <button
+            class="auth-mode-toggle"
+            :class="{ 'auth-mode-toggle--active': 'password-hash' in user }"
+            :title="'password-hash' in user ? 'Using hashed password (click to switch to plain)' : 'Using plain password (click to switch to hash)'"
+            @click="store.toggleAuthUserHashMode(index)"
+          >
+            <Hash :size="12" />
+          </button>
           <input
-            v-if="!user['password-hash']"
+            v-if="!('password-hash' in user)"
             class="env-input env-input--value"
             type="password"
             placeholder="password"
@@ -212,6 +220,32 @@ const store = useConfigStore()
   background: color-mix(in srgb, var(--color-saffron) 10%, transparent);
   border-radius: 3px;
   padding: 1px 4px;
+}
+
+.auth-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--color-smoke);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-dusk);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
+}
+
+.auth-mode-toggle:hover {
+  border-color: var(--color-periwinkle);
+  color: var(--color-periwinkle);
+}
+
+.auth-mode-toggle--active {
+  border-color: var(--color-saffron);
+  color: var(--color-saffron);
+  background: color-mix(in srgb, var(--color-saffron) 10%, transparent);
 }
 
 .auth-users {
