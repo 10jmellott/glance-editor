@@ -1,5 +1,5 @@
 import yaml from 'js-yaml'
-import type { GlanceConfig, Page, Column, Widget, ServerConfig, ThemeConfig, BrandingConfig, EnvVar } from '~/types/glance'
+import type { GlanceConfig, Page, Column, Widget, ServerConfig, ThemeConfig, BrandingConfig, EnvVar, AuthConfig, AuthUserEntry } from '~/types/glance'
 
 function stripIds<T extends object>(obj: T): Omit<T, 'id'> {
   const result: Record<string, unknown> = {}
@@ -28,6 +28,8 @@ export interface ParsedImport {
   server: ServerConfig
   theme: ThemeConfig
   branding: BrandingConfig
+  authSecretKey: string
+  authUsers: AuthUserEntry[]
 }
 
 export function parseConfig(yamlText: string): ParsedImport {
@@ -44,11 +46,22 @@ export function parseConfig(yamlText: string): ParsedImport {
     return { ...p, id: genId(), columns } as Page
   })
 
+  const rawAuth = raw.auth as AuthConfig | undefined
+  const authSecretKey = rawAuth?.['secret-key'] ?? ''
+  const authUsers: AuthUserEntry[] = []
+  if (rawAuth?.users) {
+    for (const [username, user] of Object.entries(rawAuth.users)) {
+      authUsers.push({ username, ...user })
+    }
+  }
+
   return {
     pages,
     server: (raw.server as ServerConfig) ?? {},
     theme: (raw.theme as ThemeConfig) ?? {},
     branding: (raw.branding as BrandingConfig) ?? {},
+    authSecretKey,
+    authUsers,
   }
 }
 

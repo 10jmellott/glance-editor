@@ -101,6 +101,51 @@ const store = useConfigStore()
       />
     </PanelSection>
 
+    <!-- Auth -->
+    <PanelSection label="Authentication">
+      <FormRow label="Secret Key" hint="Generate with: ./glance secret:make">
+        <AppInput
+          placeholder="(required to enable auth)"
+          :model-value="store.authSecretKey"
+          @update:model-value="store.setAuthSecretKey($event)"
+        />
+      </FormRow>
+
+      <div v-if="store.authUsers.length > 0" class="auth-users">
+        <div v-for="(user, index) in store.authUsers" :key="index" class="auth-user-row">
+          <input
+            class="env-input env-input--username"
+            placeholder="username"
+            :value="user.username"
+            @input="store.updateAuthUser(index, { username: ($event.target as HTMLInputElement).value })"
+          />
+          <input
+            v-if="!user['password-hash']"
+            class="env-input env-input--value"
+            type="password"
+            placeholder="password"
+            :value="user.password ?? ''"
+            @input="store.updateAuthUser(index, { password: ($event.target as HTMLInputElement).value })"
+          />
+          <input
+            v-else
+            class="env-input env-input--value"
+            placeholder="password-hash"
+            :value="user['password-hash']"
+            @input="store.updateAuthUser(index, { 'password-hash': ($event.target as HTMLInputElement).value })"
+          />
+          <button class="env-delete" @click="store.removeAuthUser(index)">
+            <Trash2 :size="13" />
+          </button>
+        </div>
+      </div>
+
+      <button class="add-row" @click="store.addAuthUser()">
+        <Plus :size="13" />
+        <span>Add user</span>
+      </button>
+    </PanelSection>
+
     <!-- Environment Variables -->
     <PanelSection label="Environment Variables">
       <p class="env-hint">
@@ -167,6 +212,25 @@ const store = useConfigStore()
   background: color-mix(in srgb, var(--color-saffron) 10%, transparent);
   border-radius: 3px;
   padding: 1px 4px;
+}
+
+.auth-users {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.auth-user-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+}
+
+.env-input--username {
+  flex: 2;
+  text-transform: none;
 }
 
 .env-list {

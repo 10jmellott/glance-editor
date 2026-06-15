@@ -2,7 +2,24 @@ export interface GlanceConfig {
   server?: ServerConfig
   theme?: ThemeConfig
   branding?: BrandingConfig
+  auth?: AuthConfig
   pages: Page[]
+}
+
+export interface AuthUser {
+  password?: string
+  'password-hash'?: string
+}
+
+export interface AuthConfig {
+  'secret-key'?: string
+  users?: Record<string, AuthUser>
+}
+
+export interface AuthUserEntry {
+  username: string
+  password?: string
+  'password-hash'?: string
 }
 
 export interface ServerConfig {

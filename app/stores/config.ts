@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { serializeConfig, parseConfig } from '~/utils/yaml'
-import type { GlanceConfig, Page, Column, Widget, ServerConfig, ThemeConfig, BrandingConfig, EnvVar } from '~/types/glance'
+import type { GlanceConfig, Page, Column, Widget, ServerConfig, ThemeConfig, BrandingConfig, EnvVar, AuthConfig, AuthUserEntry } from '~/types/glance'
 
 const STORAGE_KEY = 'glance-editor-v1'
 
@@ -12,6 +12,8 @@ interface PersistedState {
   theme: ThemeConfig
   branding: BrandingConfig
   envVars: EnvVar[]
+  authSecretKey: string
+  authUsers: AuthUserEntry[]
 }
 
 function loadSaved(): PersistedState | null {
@@ -94,6 +96,8 @@ export const useConfigStore = defineStore('config', () => {
   const theme = ref<ThemeConfig>(saved?.theme ?? {})
   const branding = ref<BrandingConfig>(saved?.branding ?? {})
   const envVars = ref<EnvVar[]>(saved?.envVars ?? [])
+  const authSecretKey = ref<string>(saved?.authSecretKey ?? '')
+  const authUsers = ref<AuthUserEntry[]>(saved?.authUsers ?? [])
 
   const activePage = computed(
     () => pages.value.find((p) => p.id === activePageId.value) ?? pages.value[0]
@@ -115,6 +119,20 @@ export const useConfigStore = defineStore('config', () => {
     if (hasValues(server.value as Record<string, unknown>)) config.server = server.value
     if (hasValues(theme.value as Record<string, unknown>)) config.theme = theme.value
     if (hasValues(branding.value as Record<string, unknown>)) config.branding = branding.value
+    if (authSecretKey.value || authUsers.value.length > 0) {
+      const authConfig: AuthConfig = {}
+      if (authSecretKey.value) authConfig['secret-key'] = authSecretKey.value
+      const validUsers = authUsers.value.filter((u) => u.username.trim())
+      if (validUsers.length > 0) {
+        authConfig.users = {}
+        for (const u of validUsers) {
+          authConfig.users[u.username] = u['password-hash']
+            ? { 'password-hash': u['password-hash'] }
+            : { password: u.password }
+        }
+      }
+      config.auth = authConfig
+    }
     return config
   })
 
@@ -234,6 +252,22 @@ export const useConfigStore = defineStore('config', () => {
     branding.value = { ...branding.value, ...patch }
   }
 
+  function setAuthSecretKey(key: string) {
+    authSecretKey.value = key
+  }
+
+  function addAuthUser() {
+    authUsers.value.push({ username: '', password: '' })
+  }
+
+  function updateAuthUser(index: number, patch: Partial<AuthUserEntry>) {
+    authUsers.value[index] = { ...authUsers.value[index], ...patch }
+  }
+
+  function removeAuthUser(index: number) {
+    authUsers.value.splice(index, 1)
+  }
+
   function addEnvVar() {
     envVars.value.push({ name: '', value: '' })
   }
@@ -253,11 +287,13 @@ export const useConfigStore = defineStore('config', () => {
     server.value = parsed.server
     theme.value = parsed.theme
     branding.value = parsed.branding
+    authSecretKey.value = parsed.authSecretKey
+    authUsers.value = parsed.authUsers
     selectedWidgetId.value = null
   }
 
   watch(
-    [pages, activePageId, server, theme, branding, envVars],
+    [pages, activePageId, server, theme, branding, envVars, authSecretKey, authUsers],
     () =>
       persistState({
         pages: pages.value,
@@ -266,6 +302,8 @@ export const useConfigStore = defineStore('config', () => {
         theme: theme.value,
         branding: branding.value,
         envVars: envVars.value,
+        authSecretKey: authSecretKey.value,
+        authUsers: authUsers.value,
       }),
     { deep: true }
   )
@@ -345,6 +383,8 @@ export const useConfigStore = defineStore('config', () => {
     theme,
     branding,
     envVars,
+    authSecretKey,
+    authUsers,
     glanceConfig,
     yamlOutput,
     envOutput,
@@ -371,5 +411,9 @@ export const useConfigStore = defineStore('config', () => {
     addEnvVar,
     updateEnvVar,
     removeEnvVar,
+    setAuthSecretKey,
+    addAuthUser,
+    updateAuthUser,
+    removeAuthUser,
   }
 })
